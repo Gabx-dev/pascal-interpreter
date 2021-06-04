@@ -85,40 +85,36 @@ class Interpreter(object):
 
     def eat(self, token_type):
         # Compara o tipo do token atual com o token passado e se eles combinarem,
-        # come o token atual e passa o próximo token para self.current_token.
+        # consome o token atual e passa o próximo token para self.current_token.
         # Caso contrário, levanta uma exceção.
         if self.current_token.type == token_type:
             self.current_token = self.get_next_token()
         else:
             self.error()
+    
+    def term(self):
+        '''Retorna o valor de um token de inteiro.'''
+        token =self.current_token
+        self.eat(INTEGER)
+        return token.value
 
     def expr(self):
         '''Parser/interpretador.'''
         # Define o token atual como o primeiro token na entrada.
         self.current_token = self.get_next_token()
 
-        # Esperamos que o token atual seja um inteiro.
-        left = self.current_token
-        self.eat(INTEGER)
+        result = self.term()
 
-        # E depois um sinal de + ou -.
-        op = self.current_token
-        if op.type == PLUS:
-            self.eat(PLUS)
-        elif op.type == MINUS:
-            self.eat(MINUS)
+        while self.current_token.type in (PLUS, MINUS):
+            token = self.current_token
 
-        # E por fim, outro inteiro.
-        right = self.current_token
-        self.eat(INTEGER)
+            if token.type == PLUS:
+                self.eat(PLUS)
+                result += self.term()
+            elif token.type == MINUS:
+                self.eat(MINUS)
+                result -= self.term()
 
-        # Depois da chamada acima, self.current_token é um EOF.
-        # A sequência de tokens foi encontrada com sucesso, e a operação de soma
-        # ou subtração pode ser realizada nos inteiros fornecidos.
-        if op.type == PLUS:
-            result = left.value + right.value
-        elif op.type == MINUS:
-                result = left.value - right.value
         return result
 
 def main():
