@@ -6,6 +6,8 @@
 INTEGER = 'INTEGER'
 PLUS = 'PLUS'
 MINUS = 'MINUS'
+MULT = 'MULT'
+DIV = 'DIV'
 EOF = 'EOF'
 
 
@@ -78,6 +80,12 @@ class Interpreter(object):
             elif self.current_char == '-':
                 self.advance()
                 return Token(MINUS, self.current_char)
+            elif self.current_char == '*':
+                self.advance()
+                return Token(MULT, self.current_char)
+            elif self.current_char == '/':
+                self.advance()
+                return Token(DIV, self.current_char)
             else:
                 self.error()
             
@@ -101,12 +109,16 @@ class Interpreter(object):
         left = self.current_token
         self.eat(INTEGER)
 
-        # E depois um sinal de + ou -.
+        # E depois um sinal de operação aritmética.
         op = self.current_token
         if op.type == PLUS:
             self.eat(PLUS)
         elif op.type == MINUS:
             self.eat(MINUS)
+        elif op.type == MULT:
+            self.eat(MULT)
+        elif op.type == DIV:
+            self.eat(DIV)
 
         # E por fim, outro inteiro.
         right = self.current_token
@@ -118,7 +130,14 @@ class Interpreter(object):
         if op.type == PLUS:
             result = left.value + right.value
         elif op.type == MINUS:
-                result = left.value - right.value
+            result = left.value - right.value
+        elif op.type == MULT:
+            result = left.value * right.value
+        elif op.type == DIV:
+            if right.value != 0:
+                result = left.value / right.value
+            else:
+                raise ZeroDivisionError()
         return result
 
 def main():
