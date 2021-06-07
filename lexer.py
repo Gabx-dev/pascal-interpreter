@@ -2,7 +2,7 @@
 # Autor: GabrielBonagio <gabriel.bonagio16@gmail.com>
 # Data: 6/6/2021
 
-import token
+import pascal_tokens as pt
 
 
 class Lexer(object):
@@ -45,24 +45,32 @@ class Lexer(object):
                 self.whitespace()
                 continue
             elif self.current_char.isdigit():
-                return token.Token(token.INTEGER, self.integer())
+                return pt.Token(pt.INTEGER, self.integer())
             elif self.current_char == '+':
-                token_instance = token.Token(token.ADDITION, self.current_char)
+                current_token = pt.Token(pt.ADDITION, self.current_char)
                 self.advance()
-                return token_instance
+                return current_token
             elif self.current_char == '-':
-                token_instance = token.Token(token.SUBTRACTION, self.current_char)
+                current_token = pt.Token(pt.SUBTRACTION, self.current_char)
                 self.advance()
-                return token_instance
+                return current_token
             elif self.current_char == '*':
-                token_instance = token.Token(token.MULTIPLICATION, self.current_char)
+                current_token = pt.Token(pt.MULTIPLICATION, self.current_char)
                 self.advance()
-                return token_instance
+                return current_token
             elif self.current_char == '/':
-                token_instance = token.Token(token.DIVISION, self.current_char)
+                current_token = pt.Token(pt.DIVISION, self.current_char)
                 self.advance()
-                return token_instance
+                return current_token
+            elif self.current_char == '(':
+                current_token = pt.Token(pt.LEFT_PAREN, self.current_char)
+                self.advance()
+                return current_token
+            elif self.current_char == ')':
+                current_token = pt.Token(pt.RIGHT_PAREN, self.current_char)
+                self.advance()
+                return current_token
             else:
                 self.error()
 
-        return token.Token(token.EOF, None)
+        return pt.Token(pt.EOF, None)

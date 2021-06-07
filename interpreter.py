@@ -2,7 +2,7 @@
 # Autor: GabrielBonagio <gabriel.bonagio16@gmail.com>
 # Data: 6/6/2021
 
-import token
+import pascal_tokens as pt
 
 
 class Interpreter(object):
@@ -27,14 +27,14 @@ class Interpreter(object):
         '''expression: term {(ADDITION | SUBTRACTION) term};'''
         result = self.term()
 
-        while self.current_token.type in (token.ADDITION, token.SUBTRACTION):
+        while self.current_token.type in (pt.ADDITION, pt.SUBTRACTION):
             current_token = self.current_token
 
-            if current_token.type == token.ADDITION:
-                self.eat(token.ADDITION)
+            if current_token.type == pt.ADDITION:
+                self.eat(pt.ADDITION)
                 result += self.term()
-            elif current_token.type == token.SUBTRACTION:
-                self.eat(token.SUBTRACTION)
+            elif current_token.type == pt.SUBTRACTION:
+                self.eat(pt.SUBTRACTION)
                 result -= self.term()
 
         return result
@@ -43,19 +43,25 @@ class Interpreter(object):
         '''term: factor {(MULTIPLICATION | DIVISION) factor};'''
         result = self.factor()
 
-        while self.current_token.type in (token.MULTIPLICATION, token.DIVISION):
+        while self.current_token.type in (pt.MULTIPLICATION, pt.DIVISION):
             current_token = self.current_token
 
-            if current_token.type == token.MULTIPLICATION:
-                self.eat(token.MULTIPLICATION)
+            if current_token.type == pt.MULTIPLICATION:
+                self.eat(pt.MULTIPLICATION)
                 result *= self.factor()
-            elif current_token.type == token.DIVISION:
-                self.eat(token.DIVISION)
+            elif current_token.type == pt.DIVISION:
+                self.eat(pt.DIVISION)
                 result /= self.factor()
         return result
 
     def factor(self):
-        '''factor: INTEGER;'''
-        integer = self.current_token.value
-        self.eat(token.INTEGER)
-        return integer
+        '''factor: "(" expression ")" | integer;'''
+        if self.current_token.type == pt.INTEGER:
+            integer = self.current_token.value
+            self.eat(pt.INTEGER)
+            return integer
+        elif self.current_token.type == pt.LEFT_PAREN:
+            self.eat(pt.LEFT_PAREN)
+            result = self.expression()
+            self.eat(pt.RIGHT_PAREN)
+            return result
