@@ -35,7 +35,7 @@ class Parser(object):
                 self.eat(pt.ADDITION)
             elif current_token.type == pt.SUBTRACTION:
                 self.eat(pt.SUBTRACTION)
-            
+
             node = nodes.BinaryOperation(
                 left_node=node,
                 operation=current_token.type,
@@ -55,7 +55,7 @@ class Parser(object):
                 self.eat(pt.MULTIPLICATION)
             elif current_token.type == pt.DIVISION:
                 self.eat(pt.DIVISION)
-            
+
             node = nodes.BinaryOperation(
                 left_node=node,
                 operation=current_token.type,
@@ -66,12 +66,11 @@ class Parser(object):
 
     def factor(self):
         '''factor: "(" expression ")" | integer;'''
-        current_token = self.current_token
-        if current_token.type == pt.INTEGER:
-            node = nodes.IntegerNumber(current_token)
+        if self.current_token.type == pt.INTEGER:
+            node = nodes.IntegerNumber(self.current_token)
             self.eat(pt.INTEGER)
-        elif current_token.type == pt.LEFT_PAREN:
+        elif self.current_token.type == pt.LEFT_PAREN:
             self.eat(pt.LEFT_PAREN)
             node = self.expression()
             self.eat(pt.RIGHT_PAREN)
-            return node
+        return node

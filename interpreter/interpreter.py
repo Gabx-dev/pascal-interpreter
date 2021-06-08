@@ -10,7 +10,7 @@ from . import parser
 class Interpreter(visitor.NodeVisitor):
     def __init__(self, parser):
         self.parser = parser
-    
+
     def visit_BinaryOperation(self, node):
         if node.operation == pt.ADDITION:
             return self.visit(node.left_node) + self.visit(node.right_node)
