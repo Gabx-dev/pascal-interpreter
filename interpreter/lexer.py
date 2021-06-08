@@ -2,7 +2,7 @@
 # Autor: GabrielBonagio <gabriel.bonagio16@gmail.com>
 # Data: 6/6/2021
 
-import pascal_tokens as pt
+from . import pascal_tokens as pt
 
 
 class Lexer(object):

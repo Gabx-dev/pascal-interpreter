@@ -1,7 +1,8 @@
 # Executa o interpretador
 
-from interpreter import Interpreter
-from lexer import Lexer
+from interpreter.interpreter import Interpreter
+from interpreter.lexer import Lexer
+from interpreter.parser import Parser
 
 
 def main():
@@ -15,8 +16,9 @@ def main():
             continue
 
         lexer = Lexer(text)
-        interpreter = Interpreter(lexer)
-        result = interpreter.parse()
+        parser = Parser(lexer)
+        interpreter = Interpreter(parser)
+        result = interpreter.interpret()
         print(result)
 
 

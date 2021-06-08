@@ -1,11 +1,12 @@
-# Interpretador de Pascal implementado em Python
+# Parser de Pascal implementado em Python
 # Autor: GabrielBonagio <gabriel.bonagio16@gmail.com>
-# Data: 6/6/2021
+# Data: 7/6/2021
 
-import pascal_tokens as pt
+from . import pascal_tokens as pt
+from . import nodes
 
 
-class Interpreter(object):
+class Parser(object):
     def __init__(self, lexer):
         super().__init__()
         self.lexer = lexer
@@ -25,43 +26,52 @@ class Interpreter(object):
 
     def expression(self):
         '''expression: term {(ADDITION | SUBTRACTION) term};'''
-        result = self.term()
+        node = self.term()
 
         while self.current_token.type in (pt.ADDITION, pt.SUBTRACTION):
             current_token = self.current_token
 
             if current_token.type == pt.ADDITION:
                 self.eat(pt.ADDITION)
-                result += self.term()
             elif current_token.type == pt.SUBTRACTION:
                 self.eat(pt.SUBTRACTION)
-                result -= self.term()
+            
+            node = nodes.BinaryOperation(
+                left_node=node,
+                operation=current_token.type,
+                right_node=self.term()
+            )
 
-        return result
+        return node
 
     def term(self):
         '''term: factor {(MULTIPLICATION | DIVISION) factor};'''
-        result = self.factor()
+        node = self.factor()
 
         while self.current_token.type in (pt.MULTIPLICATION, pt.DIVISION):
             current_token = self.current_token
 
             if current_token.type == pt.MULTIPLICATION:
                 self.eat(pt.MULTIPLICATION)
-                result *= self.factor()
             elif current_token.type == pt.DIVISION:
                 self.eat(pt.DIVISION)
-                result /= self.factor()
-        return result
+            
+            node = nodes.BinaryOperation(
+                left_node=node,
+                operation=current_token.type,
+                right_node=self.factor()
+            )
+
+        return node
 
     def factor(self):
         '''factor: "(" expression ")" | integer;'''
-        if self.current_token.type == pt.INTEGER:
-            integer = self.current_token.value
+        current_token = self.current_token
+        if current_token.type == pt.INTEGER:
+            node = nodes.IntegerNumber(current_token)
             self.eat(pt.INTEGER)
-            return integer
-        elif self.current_token.type == pt.LEFT_PAREN:
+        elif current_token.type == pt.LEFT_PAREN:
             self.eat(pt.LEFT_PAREN)
-            result = self.expression()
+            node = self.expression()
             self.eat(pt.RIGHT_PAREN)
-            return result
+            return node
