@@ -4,7 +4,6 @@
 
 from . import pascal_tokens as pt
 from . import visitor
-from . import parser
 
 
 class Interpreter(visitor.NodeVisitor):
@@ -12,14 +11,20 @@ class Interpreter(visitor.NodeVisitor):
         self.parser = parser
 
     def visit_BinaryOperation(self, node):
-        if node.operation == pt.ADDITION:
+        if node.operation == pt.PLUS:
             return self.visit(node.left_node) + self.visit(node.right_node)
-        elif node.operation == pt.SUBTRACTION:
+        elif node.operation == pt.MINUS:
             return self.visit(node.left_node) - self.visit(node.right_node)
-        elif node.operation == pt.MULTIPLICATION:
+        elif node.operation == pt.STAR:
             return self.visit(node.left_node) * self.visit(node.right_node)
-        elif node.operation == pt.DIVISION:
+        elif node.operation == pt.SLASH:
             return self.visit(node.left_node) / self.visit(node.right_node)
+
+    def visit_UnaryOperation(self, node):
+        if node.operation == pt.PLUS:
+            return +self.visit(node.operand_node)
+        elif node.operation == pt.MINUS:
+            return -self.visit(node.operand_node)
 
     def visit_IntegerNumber(self, node):
         return node.value

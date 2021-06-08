@@ -1,17 +1,18 @@
 # Regras
 
 ## Aritmética
-expression: term {(ADDITION | SUBTRACTION) term};
-term: factor {(MULTIPLICATION | DIVISION) factor};
-factor: INTEGER | LEFT-PAREN expression RIGHT-PAREN;
+expression: term {(PLUS | MINUS) term};  
+term: signed-factor {(STAR | SLASH) signed-factor};  
+signed-factor: [PLUS | MINUS] factor;  
+factor: LEFT-PAREN expression RIGHT-PAREN | INTEGER;  
 
 ## Operadores
-ADDITION: "+";
-SUBTRACTION: "-";
-MULTIPLICATION: "*";
-DIVISION: "/";
-LEFT-PAREN: "(";
-RIGHT-PAREN: ")";)
+PLUS: "+";  
+MINUS: "-";  
+STAR: "*";  
+SLASH: "/";  
+LEFT-PAREN: "(";  
+RIGHT-PAREN: ")";)  
 
 ## Tipos de dados
-INTEGER: "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "0";
+INTEGER: "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "0";  

@@ -3,19 +3,22 @@
 # Data: 6/6/2021
 
 INTEGER = 'INTEGER'
-ADDITION, SUBTRACTION = 'ADDITION', 'SUBTRACTION'
-MULTIPLICATION, DIVISION = 'MULTIPLICATION', 'DIVISION'
+PLUS, MINUS = 'PLUS', 'MINUS'
+STAR, SLASH = 'STAR', 'SLASH'
 LEFT_PAREN, RIGHT_PAREN = 'LEFT_PAREN', 'RIGHT_PAREN'
 EOF = 'EOF'
 
 
-class Token(object):
+class Token:
     def __init__(self, type, value):
-        super().__init__()
+        # Um dentre INTEGER, PLUS, MINUS, STAR, SLASH, LEFT_PAREN, RIGHT_PAREN, e EOF.
         self.type = type
+
+        # E um valor correspondente
         self.value = value
 
     def __str__(self):
+        '''Representação em string do Token.'''
         return f'Token({self.type}, {self.value})'
 
     def __repr__(self):
