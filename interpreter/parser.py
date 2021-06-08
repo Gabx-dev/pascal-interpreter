@@ -32,9 +32,6 @@ class Parser:
 
     def expression(self):
         # expression: term {(PLUS | MINUS) term};
-        # term: signed-factor {(STAR | SLASH) signed-factor};
-        # signed-factor: [PLUS | MINUS] factor;
-        # factor: "(" expression ")" | integer;
 
         node = self.term()
 
@@ -56,10 +53,8 @@ class Parser:
 
     def term(self):
         # term: signed-factor {(STAR | SLASH) signed-factor};
-        # signed-factor: [PLUS | MINUS] factor
-        # factor: "(" expression ")" | integer;
 
-        node = self.signed_factor()
+        node = self.factor()
 
         while self.current_token.type in (pt.STAR, pt.SLASH):
             current_token = self.current_token
@@ -72,33 +67,13 @@ class Parser:
             node = nodes.BinaryOperation(
                 left_node=node,
                 operation=current_token.type,
-                right_node=self.signed_factor()
+                right_node=self.factor()
             )
-
-        return node
-
-    def signed_factor(self):
-        # signed-factor: [PLUS | MINUS] factor;
-        # factor: "(" expression ")" | integer;
-
-        if self.current_token.type in [pt.PLUS, pt.MINUS]:
-            current_token = self.current_token
-            if self.current_token.type == pt.PLUS:
-                self.eat(pt.PLUS)
-            elif current_token.type == pt.MINUS:
-                self.eat(pt.MINUS)
-
-            node = nodes.UnaryOperation(
-                operation=current_token.type,
-                operand_node=self.factor()
-            )
-        else:
-            node = self.factor()
 
         return node
 
     def factor(self):
-        # factor: "(" expression ")" | integer;
+        # factor: (PLUS | MINUS) factor | "(" expression ")" | integer;
 
         if self.current_token.type == pt.INTEGER:
             node = nodes.IntegerNumber(self.current_token)
@@ -107,5 +82,16 @@ class Parser:
             self.eat(pt.LEFT_PAREN)
             node = self.expression()
             self.eat(pt.RIGHT_PAREN)
+        elif self.current_token.type in [pt.PLUS, pt.MINUS]:
+            current_token = self.current_token
+            if self.current_token == pt.PLUS:
+                self.eat(pt.PLUS)
+            elif self.current_token.type == pt.MINUS:
+                self.eat(pt.MINUS)
+
+            node = nodes.UnaryOperation(
+                operation=current_token.type,
+                operand_node=self.factor()
+            )
 
         return node
