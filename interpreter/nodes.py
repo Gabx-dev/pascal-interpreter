@@ -25,3 +25,27 @@ class IntegerNumber(AST):
     def __init__(self, integer):
         self.type = integer.type
         self.value = integer.value
+
+
+class CompoundStatement(AST):
+    def __init__(self, children):
+        self.children = children
+
+
+class AssignmentOperation(AST):
+    def __init__(self, left_node, operation, right_node):
+        # Um nó de variável.
+        self.left_node = left_node
+
+        # Um nó retornado por Parser.expression.
+        self.right_node = right_node
+        self.operation = operation
+
+
+class Variable(AST):
+    def __init__(self, name):
+        self.name = name
+
+
+class NoOp(AST):
+    pass

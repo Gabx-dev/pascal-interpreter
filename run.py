@@ -1,26 +1,24 @@
 # Executa o interpretador
 
+import sys
 from interpreter.interpreter import Interpreter
 from interpreter.lexer import Lexer
 from interpreter.parser import Parser
 
 
 def main():
-    while 1:
-        try:
-            text = input('Pascal > ')
-        except (EOFError, KeyboardInterrupt):
-            break
-        
-        if not text:
-            continue
+    if len(sys.argv) > 1:
+        source_path = sys.argv[1]
+    else:
+        source_path = input('Informe o caminho para o código fonte: ')
 
-        lexer = Lexer(text)
-        parser = Parser(lexer)
-        interpreter = Interpreter(parser)
-        result = interpreter.interpret()
-        print(result)
+    with open(source_path, 'r') as source_file:
+        source = source_file.read()
 
+        interpreter = Interpreter(source)
+        interpreter.interpret()
+
+        print(interpreter.global_scope)
 
 if __name__ == '__main__':
     main()

@@ -4,11 +4,12 @@
 
 from . import pascal_tokens as pt
 from . import nodes
+from .lexer import Lexer
 
 
 class Parser:
-    def __init__(self, lexer):
-        self.lexer = lexer
+    def __init__(self, text):
+        self.lexer = Lexer(text)
         self.current_token = self.lexer.get_next_token()
 
     def error(self):
@@ -28,7 +29,84 @@ class Parser:
 
     def parse(self):
         # Inicia a cadeia de análise léxica.
-        return self.expression()
+        tree = self.program()
+
+        if self.current_token.type != pt.EOF:
+            self.error()
+
+        return tree
+
+    def program(self):
+        # program: compound-statement DOT;
+
+        node = self.compound_statement()
+        self.eat(pt.DOT)
+
+        return node
+
+    def compound_statement(self):
+        # compound-statement: BEGIN statement-list END;
+
+        self.eat(pt.BEGIN)
+        statements = self.statement_list()
+        root = nodes.CompoundStatement(statements)
+        self.eat(pt.END)
+
+        return root
+
+    def statement_list(self):
+        # statement-list: statement {SEMI statement};
+
+        statements = [self.statement()]
+
+        while self.current_token.type == pt.SEMI:
+            self.eat(pt.SEMI)
+            statements.append(self.statement())
+
+        if self.current_token.type == pt.IDENTIFIER:
+            self.error()
+
+        return statements
+
+    def statement(self):
+        # statement: compound-statement | assignment-statement | empty-statement;
+
+        if self.current_token.type == pt.BEGIN:
+            node = self.compound_statement()
+        elif self.current_token.type == pt.IDENTIFIER:
+            node = self.assignment_statement()
+        else:
+            node = self.empty_statement()
+
+        return node
+
+    def assignment_statement(self):
+        # assignment-statement: variable ASSIGN expression;
+
+        left = self.variable()
+        token = self.current_token
+        self.eat(pt.ASSIGN)
+        right = self.expression()
+
+        node = nodes.AssignmentOperation(
+            left_node=left,
+            operation=token.type,
+            right_node=right
+        )
+
+        return node
+
+    def empty_statement(self):
+        # empty-statement: ;
+
+        return nodes.NoOp()
+
+    def variable(self):
+        # variable: IDENTIFIER;
+
+        node = nodes.Variable(self.current_token.value)
+        self.eat(pt.IDENTIFIER)
+        return node
 
     def expression(self):
         # expression: term {(PLUS | MINUS) term};
@@ -73,7 +151,7 @@ class Parser:
         return node
 
     def factor(self):
-        # factor: (PLUS | MINUS) factor | "(" expression ")" | integer;
+        # factor: (PLUS | MINUS) factor | "(" expression ")" | integer | variable;
 
         if self.current_token.type == pt.INTEGER:
             node = nodes.IntegerNumber(self.current_token)
@@ -93,5 +171,7 @@ class Parser:
                 operation=current_token.type,
                 operand_node=self.factor()
             )
+        elif self.current_token.type == pt.IDENTIFIER:
+            node = self.variable()
 
         return node

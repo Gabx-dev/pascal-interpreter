@@ -22,13 +22,23 @@ class Lexer:
         # Levanta uma exceção caso não tenha sido possível transformar a entrada em um token.
         raise Exception('Caractere inválido')
 
-    def advance(self):
+    def advance(self, ammount=1):
         # Caminha pelos caracteres da entrada.
-        self.pos += 1
+        for _ in range(ammount):
+            self.pos += 1
+
         if self.pos > len(self.text) - 1:
             self.current_char = None
         else:
             self.current_char = self.text[self.pos]
+
+    def peek(self):
+        # Retorna o caractere na posição self.pos + 1 sem alterar self.pos se
+        # self.pos + 1 for um índice válido dentro de self.text.
+        peek_pos = self.pos + 1
+        if peek_pos > len(self.text) - 1:
+                return None
+        return self.text[peek_pos]
 
     def whitespace(self):
         # Salta espaços.
@@ -38,13 +48,32 @@ class Lexer:
 
     def integer(self):
         # Retorna um token de número inteiro.
-        result = str()
+        result = ''
 
         while (self.current_char is not None and
         self.current_char.isdigit()):
             result += self.current_char
             self.advance()
-        return int(result)
+        return pt.Token(
+            type=pt.INTEGER,
+            value=int(result)
+        )
+
+    def identifier(self):
+        result = self.current_char
+        self.advance()
+
+        while (self.current_char is not None and
+        self.current_char.isalnum()):
+            result += self.current_char
+            self.advance()
+
+        token = pt.RESERVED_KEYWORDS.get(
+            result,
+            pt.Token(pt.IDENTIFIER, result)
+        )
+
+        return token
 
     def get_next_token(self):
         '''Analisador léxico
@@ -56,31 +85,36 @@ class Lexer:
                 self.whitespace()
                 continue
             elif self.current_char.isdigit():
-                return pt.Token(pt.INTEGER, self.integer())
+                return self.integer()
+            elif self.current_char.isalpha():
+                return self.identifier()
             elif self.current_char == '+':
-                current_token = pt.Token(pt.PLUS, self.current_char)
                 self.advance()
-                return current_token
+                return pt.Token(pt.PLUS, '+')
             elif self.current_char == '-':
-                current_token = pt.Token(pt.MINUS, self.current_char)
                 self.advance()
-                return current_token
+                return pt.Token(pt.MINUS, '-')
             elif self.current_char == '*':
-                current_token = pt.Token(pt.STAR, self.current_char)
                 self.advance()
-                return current_token
+                return pt.Token(pt.STAR, '*')
             elif self.current_char == '/':
-                current_token = pt.Token(pt.SLASH, self.current_char)
                 self.advance()
-                return current_token
+                return pt.Token(pt.SLASH, '/')
             elif self.current_char == '(':
-                current_token = pt.Token(pt.LEFT_PAREN, self.current_char)
                 self.advance()
-                return current_token
+                return pt.Token(pt.LEFT_PAREN, '(')
             elif self.current_char == ')':
-                current_token = pt.Token(pt.RIGHT_PAREN, self.current_char)
                 self.advance()
-                return current_token
+                return pt.Token(pt.RIGHT_PAREN, ')')
+            elif self.current_char == ':' and self.peek() == '=':
+                self.advance(2)
+                return pt.Token(pt.ASSIGN, ':=')
+            elif self.current_char == ';':
+                self.advance()
+                return pt.Token(pt.SEMI, ';')
+            elif self.current_char == '.':
+                self.advance()
+                return pt.Token(pt.DOT, '.')
             else:
                 self.error()
 
